@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { sendOTPEmail } = require('./emailService');
 
 /**
- * Generate a 6-digit OTP and optionally send via email
+ * Generate a 6-digit OTP and send email
  * @param {String} email - User email
  * @returns {Object} { otp, expiresAt }
  */

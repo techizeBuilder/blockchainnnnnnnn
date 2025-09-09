@@ -1,9 +1,15 @@
 const express = require('express');
-const router = express.Router();
-const { register, login, linkWallet } = require('../controllers/userController');
+const { register, login, verifyEmail, updateWalletController } = require('../controllers/userController');
+const authMiddleware = require('../middleware/authMiddleware');
 
+const router = express.Router();
+
+// Public routes
 router.post('/register', register);
+router.post('/verify-email', verifyEmail);
 router.post('/login', login);
-router.patch('/:id/wallet', linkWallet);
+
+// Protected route
+router.patch('/:id/wallet', authMiddleware, updateWalletController);
 
 module.exports = router;
