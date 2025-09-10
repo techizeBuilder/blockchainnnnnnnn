@@ -1,5 +1,6 @@
 const express = require("express");
 const userRoutes = require('./routes/userRoutes');
+const ethereumRoutes = require("./routes/priceRoutes");
 
 const app = express();
 
@@ -13,5 +14,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
+
+app.use("/api/ethereum", ethereumRoutes);
 
 module.exports = app;

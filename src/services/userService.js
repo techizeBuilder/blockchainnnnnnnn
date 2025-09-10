@@ -45,7 +45,6 @@ const updateWallet = async (userId, walletAddress) => {
         { walletAddress },
         { new: true }
     );
-    console.log("user", user);
     
     if (!user) throw new Error('User not found');
     return user;

@@ -10,6 +10,6 @@ router.post('/verify-email', verifyEmail);
 router.post('/login', login);
 
 // Protected route
-router.patch('/:id/wallet', authMiddleware, updateWalletController);
+router.patch('/wallet', authMiddleware, updateWalletController);
 
 module.exports = router;

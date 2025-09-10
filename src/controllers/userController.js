@@ -38,20 +38,27 @@ const login = async (req, res) => {
 
 // Update wallet
 const updateWalletController = async (req, res) => {
-    try {
-        const { userId, walletAddress } = req.body;
-        console.log("userId",userId);
-        
-        const user = await updateWallet(userId, walletAddress);
+  try {
+    const { walletAddress } = req.body;
+    const userId = req.user._id; // ✅ Fixed: use _id since Mongoose stores it like this
 
-        res.status(200).json({
-            message: 'Wallet updated successfully',
-            user
-        });
-    } catch (err) {
-        res.status(400).json({ error: err.message });
+    const user = await updateWallet(userId, walletAddress);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
+
+    res.json({
+      message: "Wallet updated successfully",
+      user
+    });
+  } catch (error) {
+    console.error("Update wallet error:", error.message);
+    res.status(400).json({ error: error.message });
+  }
 };
+
+module.exports = { updateWalletController };
+
 
 // Verify OTP (email verification)
 const verifyEmail = async (req, res) => {
