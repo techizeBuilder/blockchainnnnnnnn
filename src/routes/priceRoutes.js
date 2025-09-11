@@ -1,9 +1,7 @@
 const express = require("express");
-const { fetchEthereumPairs } = require("../controllers/priceController");
-
 const router = express.Router();
+const priceController = require("../controllers/priceController");
 
-// GET -> fetch all pairs (paginated)
-router.get("/pairs", fetchEthereumPairs);
+router.get("/pools/:chain", priceController.fetchPools);
 
 module.exports = router;

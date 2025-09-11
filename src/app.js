@@ -1,6 +1,6 @@
 const express = require("express");
 const userRoutes = require('./routes/userRoutes');
-const ethereumRoutes = require("./routes/priceRoutes");
+const priceRoutes = require("./routes/priceRoutes");
 
 const app = express();
 
@@ -15,6 +15,6 @@ app.get("/", (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 
-app.use("/api/ethereum", ethereumRoutes);
+app.use("/api", priceRoutes);   // <-- this is what enables /api/pools
 
 module.exports = app;

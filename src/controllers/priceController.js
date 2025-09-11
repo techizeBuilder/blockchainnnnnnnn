@@ -1,16 +1,15 @@
-const { getEthereumPairs } = require("../services/dex/priceService");
+const priceService = require("../services/dex/priceService");
 
-const fetchEthereumPairs = async (req, res) => {
+async function fetchPools(req, res) {
   try {
-    const { page = 1, perPage = 10 } = req.query;
+    const { chain } = req.params;
+    const { page = 1 } = req.query;
 
-    const result = await getEthereumPairs(page, perPage);
-
-    res.json(result);
+    const pools = await priceService.getPools(chain, page);
+    res.json({ page, pools });
   } catch (err) {
-    console.error("fetchEthereumPairs error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: err.message });
   }
-};
+}
 
-module.exports = { fetchEthereumPairs };
+module.exports = { fetchPools };
