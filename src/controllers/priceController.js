@@ -1,15 +1,12 @@
 const priceService = require("../services/dex/priceService");
 
-async function fetchPools(req, res) {
+exports.getUniswapPools = async (req, res) => {
   try {
-    const { chain } = req.params;
-    const { page = 1 } = req.query;
-
-    const pools = await priceService.getPools(chain, page);
-    res.json({ page, pools });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { chain = "eth" } = req.query;
+    const pools = await priceService.getAllUniswapPools(chain);
+    res.json({ chain, total: pools.length, pools });
+  } catch (error) {
+    console.error("❌ getUniswapPools error:", error.message);
+    res.status(500).json({ error: "Failed to fetch Uniswap pools" });
   }
-}
-
-module.exports = { fetchPools };
+};
