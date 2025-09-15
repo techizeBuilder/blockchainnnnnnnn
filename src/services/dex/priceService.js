@@ -1,15 +1,64 @@
+// src/services/dex/priceService.js
 const { fetchAllPoolsForDex } = require("./geckoService");
 const { enrichWithDexscreenerPrices } = require("./dexScreenerService");
+const cache = require("../../utils/cache");
 
-async function getAllUniswapPools(chain = "eth") {
-  const dexIds = ["uniswap_v2", "uniswap_v3"]; // remove v4 if not supported
-  const results = await Promise.all(dexIds.map(dexId => fetchAllPoolsForDex(dexId, chain)));
-
-  const pools = results.flat();
-
-  // enrich with Dexscreener
-  const poolsWithPrices = await enrichWithDexscreenerPrices(pools, "ethereum");
-  return poolsWithPrices;
+/**
+ * Filter pools to only include those with full data
+ */
+function filterFullDataPools(pools) {
+  return pools.filter(
+    (pool) =>
+      pool.priceUsd !== undefined &&
+      pool.liquidityUsd !== undefined &&
+      pool.volume24h !== undefined
+  );
 }
 
-module.exports = { getAllUniswapPools };
+/**
+ * Get all Ethereum pools from multiple DEXs
+ */
+async function getAllEthereumPools(chain = "eth") {
+  const cacheKey = `allPools:${chain}`;
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log("⚡ Returning cached data");
+    return cached;
+  }
+
+  console.log("⏳ Fetching fresh data from Gecko + Dexscreener...");
+
+  const dexIds = [
+    "uniswap",
+    "sushiswap",
+    "curve",
+    "balancer",
+    "shibaswap",
+    "dodo",
+    "kyberswap",
+  ];
+
+  // Fetch from Gecko in parallel with error resilience
+  const results = await Promise.allSettled(
+    dexIds.map((dexId) => fetchAllPoolsForDex(dexId, chain))
+  );
+
+  let pools = results
+    .filter((r) => r.status === "fulfilled")
+    .flatMap((r) => r.value);
+
+  // Enrich with DexScreener prices (real-time)
+  const poolsWithPrices = await enrichWithDexscreenerPrices(pools, "ethereum");
+
+  // ✅ Filter only complete pools
+  const completePools = filterFullDataPools(poolsWithPrices);
+
+  // Save to cache
+  cache.set(cacheKey, completePools, 60); // TTL 60s
+
+  return completePools;
+}
+
+module.exports = {
+  getAllEthereumPools,
+};

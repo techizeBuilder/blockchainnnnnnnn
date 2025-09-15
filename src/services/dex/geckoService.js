@@ -1,17 +1,21 @@
+// src/services/dex/geckoService.js
 const axios = require("axios");
 const BASE_URL = "https://api.geckoterminal.com/api/v2";
 
-async function fetchAllPoolsForDex(dexId, chain = "eth") {
+/**
+ * Fetch all pools for a given DEX on a chain with pagination
+ */
+async function fetchAllPoolsForDex(dexId, chain = "eth", maxPages = 5, perPage = 50) {
   let page = 1;
   let allPools = [];
   let hasMore = true;
 
-  while (hasMore) {
+  while (hasMore && page <= maxPages) {
     try {
-      const url = `${BASE_URL}/networks/${chain}/dexes/${dexId}/pools?page=${page}`;
+      const url = `${BASE_URL}/networks/${chain}/dexes/${dexId}/pools?page=${page}&per_page=${perPage}`;
       const response = await axios.get(url);
 
-      const pools = response.data.data.map(pool => ({
+      const pools = response.data.data.map((pool) => ({
         id: pool.id,
         address: pool.attributes.address,
         name: pool.attributes.name,
@@ -30,6 +34,7 @@ async function fetchAllPoolsForDex(dexId, chain = "eth") {
       hasMore = false;
     }
   }
+
   return allPools;
 }
 

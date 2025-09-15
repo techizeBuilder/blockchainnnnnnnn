@@ -1,8 +1,10 @@
+// src/routes/priceRoutes.js
 const express = require("express");
-const router = express.Router();
 const { getPools } = require("../controllers/priceController");
 
-// GET /api/prices/pools?chain=eth
+const router = express.Router();
+
+// GET /api/prices/pools
 router.get("/pools", getPools);
 
 module.exports = router;
