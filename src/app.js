@@ -15,6 +15,6 @@ app.get("/", (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 
-app.use("/api", priceRoutes);   // <-- this is what enables /api/pools
+app.use("/api/prices", priceRoutes);;   // <-- this is what enables /api/pools
 
 module.exports = app;

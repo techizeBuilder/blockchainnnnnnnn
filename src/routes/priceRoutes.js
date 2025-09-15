@@ -1,8 +1,8 @@
-// src/routes/priceRoutes.js
 const express = require("express");
 const router = express.Router();
-const priceController = require("../controllers/priceController");
+const { getPools } = require("../controllers/priceController");
 
-router.get("/uniswap-pools", priceController.getUniswapPools);
+// GET /api/prices/pools?chain=eth
+router.get("/pools", getPools);
 
 module.exports = router;
