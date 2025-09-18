@@ -5,7 +5,6 @@ const generateToken = require('../utils/jwt');
 const register = async (req, res) => {
     try {
         const user = await registerUser(req.body);
-
         // Hide sensitive fields
         const { password, otp, otpExpires, ...userWithoutSensitive } = user.toObject();
 
