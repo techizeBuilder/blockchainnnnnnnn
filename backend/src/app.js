@@ -9,7 +9,7 @@ const app = express();
 // ✅ Enable CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", // your frontend
+    origin: process.env.FRONTEND_URL || "https://blockchainfrontend-ten.vercel.app/", // your frontend
     credentials: true, // allow cookies/authorization headers
   })
 );
