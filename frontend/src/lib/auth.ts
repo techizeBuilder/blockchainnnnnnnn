@@ -26,7 +26,9 @@ export const useAuth = () => {
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem("auth_user");
+    const savedUser = localStorage.getItem("user");
+    console.log(savedUser);
+    
     const token = localStorage.getItem("token");
 
     if (savedUser && token) {
@@ -88,11 +90,13 @@ export const useAuth = () => {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
       const res = await Request.post(api.login, { email, password });
-
+      console.log("123",res);
+      
       if (res.status === 200) {
         const user = res.data?.user;
         const token = res.data?.token;
-
+        console.log("user",user);
+        
         if (user && token) {
           localStorage.setItem("auth_user", JSON.stringify(user));
           localStorage.setItem("token", token);

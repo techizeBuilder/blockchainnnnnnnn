@@ -22,8 +22,10 @@ import { useAuth } from "@/lib/auth";
 import LogoutButton from "@/components/common/LogoutButton";
 
 const Dashboard = () => {
+  
   const [isModalOpen, setModalOpen] = useState(false);
   const { signOut, isAuthenticated, user, isLoading } = useAuth();
+  console.log("123123123123123123",user);
 
   const navigate = useNavigate();
 

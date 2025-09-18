@@ -62,6 +62,8 @@ export function AuthForms() {
 
       if (response.status === 200) {
         // Store token and user data
+        console.log("12312312312311111111111111");
+        
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         
