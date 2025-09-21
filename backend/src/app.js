@@ -3,13 +3,14 @@ const cors = require("cors"); // ✅ import cors
 const userRoutes = require('./routes/userRoutes');
 const priceRoutes = require("./routes/priceRoutes");
 const tokenPriceRoutes = require("./routes/tokenPriceRoutes");
+const dexRoutes = require("./routes/dexRoutes");
 
 const app = express();
 
 // ✅ Enable CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://blockchainfrontend-ten.vercel.app/", // your frontend
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // your frontend
     credentials: true, // allow cookies/authorization headers
   })
 );
@@ -26,5 +27,6 @@ app.get("/", (req, res) => {
 app.use('/api/users', userRoutes);
 app.use("/api/prices", priceRoutes);
 app.use("/api/tokens", tokenPriceRoutes);
+app.use("/api/dex", dexRoutes);
 
 module.exports = app;

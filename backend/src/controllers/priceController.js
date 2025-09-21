@@ -1,14 +1,14 @@
-// src/controllers/priceController.js
+// src/controllers/poolController.js
 const { getAllEthereumPools } = require("../services/dex/priceService");
 
-async function getPools(req, res) {
+async function fetchPools(req, res) {
   try {
     const pools = await getAllEthereumPools("eth");
-    res.json({ pools, count: pools.length });
+    res.json(pools);
   } catch (err) {
-    console.error("❌ getPools error:", err.message);
+    console.error("❌ fetchPools error:", err.message);
     res.status(500).json({ error: "Failed to fetch pools" });
   }
 }
 
-module.exports = { getPools };
+module.exports = { fetchPools };
