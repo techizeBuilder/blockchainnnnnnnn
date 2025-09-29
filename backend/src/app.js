@@ -4,6 +4,7 @@ const userRoutes = require('./routes/userRoutes');
 const priceRoutes = require("./routes/priceRoutes");
 const tokenPriceRoutes = require("./routes/tokenPriceRoutes");
 const dexRoutes = require("./routes/dexRoutes");
+const pairRoutes = require("./routes/pairRoutes");
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use('/api/users', userRoutes);
 app.use("/api/prices", priceRoutes);
 app.use("/api/tokens", tokenPriceRoutes);
 app.use("/api/dex", dexRoutes);
+app.use("/api/pairs", pairRoutes);
 
 module.exports = app;
