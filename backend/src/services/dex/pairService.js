@@ -1,6 +1,7 @@
 // services/pairService.js
 const axios = require("axios");
 
+// Fetch multiple pages of pools from GeckoTerminal
 async function fetchPools(chain, pages = 3) {
   let allPools = [];
 
@@ -21,7 +22,20 @@ async function fetchPools(chain, pages = 3) {
   return allPools;
 }
 
-async function fetchPairs(chain, showAll = false, pages = 3) {
+// Calculate price difference between min & max across DEXs
+function calculatePriceDiff(dexList) {
+  if (dexList.length < 2) return 0;
+  const prices = dexList.map(d => parseFloat(d.priceUsd)).filter(Boolean);
+  if (prices.length < 2) return 0;
+
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+
+  return ((max - min) / min) * 100; // % difference
+}
+
+// Build pairs with arbitrage data
+async function fetchPairs(chain, showAll = false, pages = 3, limit = 10) {
   const pools = await fetchPools(chain, pages);
 
   const pairs = {};
@@ -32,7 +46,7 @@ async function fetchPairs(chain, showAll = false, pages = 3) {
 
     if (!baseSymbol || !quoteSymbol) return;
 
-    const pairKey = `${baseSymbol}/${quoteSymbol}`;
+    const pairKey = `${baseSymbol} / ${quoteSymbol}`;
     if (!pairs[pairKey]) pairs[pairKey] = [];
 
     pairs[pairKey].push({
@@ -46,19 +60,26 @@ async function fetchPairs(chain, showAll = false, pages = 3) {
   });
 
   let resultPairs = {};
-  if (showAll) {
-    resultPairs = pairs;
-  } else {
-    Object.entries(pairs).forEach(([pair, dexList]) => {
-      const uniqueDexes = [...new Set(dexList.map(p => p.dex))];
-      if (uniqueDexes.length > 1) {
-        resultPairs[pair] = dexList;
-      }
-    });
-  }
+  Object.entries(pairs).forEach(([pair, dexList]) => {
+    const uniqueDexes = [...new Set(dexList.map(p => p.dex))];
 
-  console.log(`✅ Returning ${Object.keys(resultPairs).length} pairs`);
-  return { chain, pairs: resultPairs };
+    if (showAll || uniqueDexes.length > 1) {
+      resultPairs[pair] = {
+        opportunities: dexList.sort((a, b) => b.liquidityUsd - a.liquidityUsd),
+        priceDiff: calculatePriceDiff(dexList),
+      };
+    }
+  });
+
+  // Sort by priceDiff and limit results
+  const sortedEntries = Object.entries(resultPairs)
+    .sort(([, a], [, b]) => b.priceDiff - a.priceDiff)
+    .slice(0, limit);
+
+  const finalPairs = Object.fromEntries(sortedEntries);
+
+  console.log(`✅ Returning ${Object.keys(finalPairs).length} pairs`);
+  return { chain, pairs: finalPairs };
 }
 
 module.exports = { fetchPairs };
