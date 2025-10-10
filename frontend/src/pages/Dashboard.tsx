@@ -22,10 +22,23 @@ import LogoutButton from "@/components/common/LogoutButton";
 
 const Dashboard = () => {
 	const [isModalOpen, setModalOpen] = useState(false);
+	const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+	const [walletAddress, setWalletAddress] = useState<string | null>(null);
 	const { signOut, isAuthenticated, user, isLoading } = useAuth();
 	console.log("123123123123123123", user);
 
 	const navigate = useNavigate();
+
+	const handleWalletConnect = (walletName: string, address?: string) => {
+		setConnectedWallet(walletName);
+		setWalletAddress(address || null);
+		toast.success(`Successfully connected to ${walletName}`);
+
+		if (address) {
+			console.log(`Connected wallet address: ${address}`);
+			// You can store the wallet info in your auth context or state management
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -51,8 +64,22 @@ const Dashboard = () => {
 						<Button
 							onClick={() => setModalOpen(true)}
 							variant="outline"
-							className="flex items-center space-x-2 bg-transparent border text-gray-800 hover:text-gray-900 transition-colors px-3  py-2 rounded-md">
-							Wallet <Wallet className="h-4 w-4" />
+							className="flex items-center space-x-2 bg-transparent border text-gray-800 hover:text-gray-900 transition-colors px-3 py-2 rounded-md">
+							<Wallet className="h-4 w-4" />
+							{connectedWallet ? (
+								<div className="flex flex-col items-start">
+									<span className="text-xs text-green-500">Connected</span>
+									<span className="text-xs">
+										{walletAddress
+											? `${walletAddress.slice(0, 6)}...${walletAddress.slice(
+													-4
+											  )}`
+											: connectedWallet}
+									</span>
+								</div>
+							) : (
+								"Connect Wallet"
+							)}
 						</Button>
 						<LogoutButton />
 					</div>
@@ -158,7 +185,11 @@ const Dashboard = () => {
 				</div>
 			</div>
 			{/* Wallet Modal */}
-			<WalletModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
+			<WalletModal
+				isOpen={isModalOpen}
+				onClose={() => setModalOpen(false)}
+				onConnect={handleWalletConnect}
+			/>
 		</div>
 	);
 };
