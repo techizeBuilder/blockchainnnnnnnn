@@ -1,24 +1,20 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
-const { ALCHEMY_KEY, PRIVATE_KEY, ETHERSCAN_KEY } = process.env;
+const { PRIVATE_KEY, RPC_URL, ETHERSCAN_API_KEY } = process.env;
 
 module.exports = {
-  solidity: {
-    version: "0.8.20",
-    settings: { optimizer: { enabled: true, runs: 200 } },
-  },
+  solidity: "0.8.20",
   networks: {
-    mainnet: {
-      url: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+    sepolia: {
+      url: RPC_URL,
       accounts: [PRIVATE_KEY],
     },
-    sepolia: {
-      url: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_KEY}`,
-      accounts: [PRIVATE_KEY],
+    localhost: {
+      url: "http://127.0.0.1:8545",
     },
   },
   etherscan: {
-    apiKey: ETHERSCAN_KEY,
+    apiKey: ETHERSCAN_API_KEY,
   },
 };

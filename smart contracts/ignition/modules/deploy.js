@@ -1,32 +1,47 @@
+// scripts/deploy.js
 const { ethers } = require("hardhat");
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying with:", deployer.address);
+  console.log("🚀 Starting deployment...");
 
-  // Aave v3 PoolAddressesProvider (mainnet example)
-  const AAVE_PROVIDER = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2";
-  const INITIAL_FEE_BPS = 30; // 0.3%
+  // --- STEP 1: Deploy SwapAdapter ---
+  console.log("📦 Deploying SwapAdapter...");
+  const SwapAdapter = await ethers.getContractFactory("SwapAdapter");
+  const swapAdapter = await SwapAdapter.deploy();
+  await swapAdapter.waitForDeployment();
+  console.log(`✅ SwapAdapter deployed at: ${swapAdapter.target}`);
 
-  const Arbitrage = await ethers.getContractFactory("ProdMultiDexArbitrage");
-  const contract = await Arbitrage.deploy(AAVE_PROVIDER, INITIAL_FEE_BPS);
-  await contract.waitForDeployment();
+  // --- STEP 2: Deploy MockAavePool (for testing) ---
+  console.log("📦 Deploying MockAavePool...");
+  const MockAavePool = await ethers.getContractFactory("MockAavePool");
+  const mockAavePool = await MockAavePool.deploy();
+  await mockAavePool.waitForDeployment();
+  console.log(`✅ MockAavePool deployed at: ${mockAavePool.target}`);
 
-  const address = await contract.getAddress();
-  console.log("✅ Deployed at:", address);
+  // --- STEP 3: Deploy FlashLoanExecutor ---
+  console.log("📦 Deploying FlashLoanExecutor...");
+  const FlashLoanExecutor = await ethers.getContractFactory("FlashLoanExecutor");
+  const executor = await FlashLoanExecutor.deploy(mockAavePool.target, swapAdapter.target);
+  await executor.waitForDeployment();
+  console.log(`✅ FlashLoanExecutor deployed at: ${executor.target}`);
 
-  console.log("⏳ Verifying on Etherscan...");
-  await contract.deploymentTransaction().wait(5);
+  // --- STEP 4: Deploy ProdMultiDexArbitrage ---
+  console.log("📦 Deploying ProdMultiDexArbitrage...");
+  const ProdMultiDexArbitrage = await ethers.getContractFactory("ProdMultiDexArbitrage");
+  const arbitrage = await ProdMultiDexArbitrage.deploy(executor.target);
+  await arbitrage.waitForDeployment();
+  console.log(`✅ ProdMultiDexArbitrage deployed at: ${arbitrage.target}`);
 
-  await hre.run("verify:verify", {
-    address,
-    constructorArguments: [AAVE_PROVIDER, INITIAL_FEE_BPS],
-  });
-
-  console.log("🎯 Verification complete!");
+  console.log("\n🎯 All contracts deployed successfully!");
+  console.log("-------------------------------------------");
+  console.log(`SwapAdapter:             ${swapAdapter.target}`);
+  console.log(`MockAavePool:            ${mockAavePool.target}`);
+  console.log(`FlashLoanExecutor:       ${executor.target}`);
+  console.log(`ProdMultiDexArbitrage:   ${arbitrage.target}`);
+  console.log("-------------------------------------------");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+main().catch((error) => {
+  console.error("❌ Deployment failed:", error);
+  process.exitCode = 1;
 });
